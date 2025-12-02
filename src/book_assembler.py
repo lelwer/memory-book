@@ -1,4 +1,4 @@
-from fpdf import FPDF
+from fpdf import FPDF, XPos, YPos
 import os
 from PIL import Image # We need this to read image sizes
 
@@ -22,7 +22,8 @@ class PDF(FPDF):
             self.set_y(-15) 
             self.set_font(PDF_FONT, 'I', 8) 
             self.set_text_color(0, 0, 0) 
-            self.cell(0, 10, f"Page {self.page_no() - 1}", 0, 0, 'C')
+            # use explicit new_x/new_y to avoid deprecated `ln` parameter
+            self.cell(0, 10, f"Page {self.page_no() - 1}", border=0, new_x=XPos.RIGHT, new_y=YPos.TOP, align='C')
 
     @property
     def page_count(self):

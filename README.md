@@ -1,5 +1,9 @@
 # 📚 Memory-to-Storybook Generator
 
+[![CI](https://github.com/lelwer/memory-book/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+
 A command-line tool that transforms a cherished personal memory into a custom, beautifully illustrated storybook PDF using Google's Gemini AI.
 
 This project takes a simple, real-life moment—like a child's funny question—and uses AI to write a unique story, generate consistent illustrations for each page, and assemble it all into a single, print-ready PDF file.

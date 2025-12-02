@@ -1,0 +1,17 @@
+# For the Gemini API
+google-generativeai
+
+# For PDF Generation
+fpdf2
+
+# For Testing
+pytest
+pytest-mock
+
+# For the Image Generation API (Choose one)
+# Option A: For Stability AI's official client
+stability-sdk
+
+# Option B: A general-purpose HTTP client
+# (Use this if you prefer to call any image API directly)
+requests

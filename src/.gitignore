@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Virtual environment
+venv/
+
+# Temporary image files
+*.png
+*.jpg

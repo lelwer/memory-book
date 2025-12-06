@@ -1,6 +1,6 @@
 from fpdf import FPDF, XPos, YPos
 import os
-from PIL import Image # We need this to read image sizes
+from PIL import Image
 
 PDF_FONT = "Helvetica" 
 PAGE_SIZE_MM = 210 # 210mm x 210mm square
@@ -20,10 +20,9 @@ class PDF(FPDF):
         """ Renders the page number at the bottom of each page. """
         if self.page_no() > 1 and self.page_no() < self.page_count:
             self.set_y(-15) 
-            self.set_font(PDF_FONT, 'I', 8) 
+            self.set_font(PDF_FONT, 'I', 10) 
             self.set_text_color(0, 0, 0) 
-            # use explicit new_x/new_y to avoid deprecated `ln` parameter
-            self.cell(0, 10, f"Page {self.page_no() - 1}", border=0, new_x=XPos.RIGHT, new_y=YPos.TOP, align='C')
+            self.cell(0, 10, f"{self.page_no() - 1}", border=0, new_x=XPos.RIGHT, new_y=YPos.TOP, align='C')
 
     @property
     def page_count(self):
@@ -47,104 +46,118 @@ def create_pdf(title, story_text, image_list, end_message, cover_image_path, the
         
         rgb_color = COLOR_MAP.get(theme_color.lower(), (255, 255, 255))
         
-        # --- START FIX (Problem #3) ---
-        # --- Title Page with Pattern Background ---
+        # ==========================================
+        # 1. FRONT COVER
+        # ==========================================
         pdf.add_page()
+        
+        # Background: Pattern or Solid Color
         if cover_image_path and os.path.exists(cover_image_path):
             pdf.image(cover_image_path, x=0, y=0, w=PAGE_SIZE_MM, h=PAGE_SIZE_MM)
         else:
             pdf.set_fill_color(*rgb_color)
             pdf.rect(x=0, y=0, w=PAGE_SIZE_MM, h=PAGE_SIZE_MM, style='F')
 
-        # --- RE-ADDING the white "bookplate" (rounded rectangle) for readability ---
-        pdf.set_fill_color(255, 255, 255) # White
-        try:
-            pdf.rounded_rect(x=30, y=80, w=PAGE_SIZE_MM - 60, h=50, r=10, style='F')
-        except AttributeError:
-            print("[Warning] rounded_rect not found. Using sharp rectangle.")
-            pdf.rect(x=30, y=80, w=PAGE_SIZE_MM - 60, h=50, style='F')
-        
-        # Draw the title text (in black, centered)
-        pdf.set_font(PDF_FONT, 'B', 24) # Bold, 24pt
-        pdf.set_text_color(0, 0, 0) # Black text
-        pdf.set_xy(30, 90) # Position text
-        pdf.multi_cell(w=PAGE_SIZE_MM - 60, h=15, text=title, align='C')
-        # --- END FIX ---
+        # Title Text: MASSIVE, BOLD, Centered directly on pattern
+        # Placing it vertically in the center (approx 85mm down)
+        pdf.set_font(PDF_FONT, 'B', 36) 
+        pdf.set_text_color(0, 0, 0) 
+        # Add a subtle white glow/stroke effect by printing slightly offset (optional hack), 
+        # but standard black on pattern is what the user asked for.
+        pdf.set_xy(10, 85) 
+        pdf.multi_cell(w=PAGE_SIZE_MM - 20, h=14, text=title, align='C')
 
         
-        # --- Story Pages (This layout is working well) ---
+        # ==========================================
+        # 2. STORY PAGES
+        # ==========================================
         text_pages = story_text.split('\n\n')
         
         for i, text_page in enumerate(text_pages):
             pdf.add_page()
             
-            # 1. Set the page background to the theme color
+            # A. Background Color (Full Page)
             pdf.set_fill_color(*rgb_color)
             pdf.rect(x=0, y=0, w=PAGE_SIZE_MM, h=PAGE_SIZE_MM, style='F')
             
-            # --- 2. Image (Preserving Aspect Ratio) ---
-            image_area_width = PAGE_SIZE_MM - 20  # 190mm
-            image_area_height = PAGE_SIZE_MM - 70 # 140mm
+            # B. White "Polaroid" Frame (Rounded Rect)
+            #    This creates the white background behind the image
+            frame_margin = 15
+            frame_width = PAGE_SIZE_MM - (frame_margin * 2) # 180mm
+            frame_height = 135 # Height of the white box
+            frame_y = 20
+            
+            pdf.set_fill_color(255, 255, 255) # White
+            try:
+                # Rounded corners for that soft look
+                pdf.rounded_rect(x=frame_margin, y=frame_y, w=frame_width, h=frame_height, r=8, style='F')
+            except AttributeError:
+                pdf.rect(x=frame_margin, y=frame_y, w=frame_width, h=frame_height, style='F')
+            
+            # C. Image Placement (Centered Inside the White Frame)
+            #    We add padding so the image doesn't touch the white edges
+            padding = 10
+            img_max_w = frame_width - (padding * 2)
+            img_max_h = frame_height - (padding * 2)
             
             if i < len(image_list) and os.path.exists(image_list[i]):
                 img_path = image_list[i]
                 with Image.open(img_path) as img:
                     img_w_px, img_h_px = img.size
                 
+                # Calculate aspect ratio to fit INSIDE the padding
                 aspect_ratio = img_h_px / img_w_px
                 
-                if (image_area_width * aspect_ratio) > image_area_height:
-                    new_h = image_area_height
-                    new_w = image_area_height / aspect_ratio
+                if (img_max_w * aspect_ratio) > img_max_h:
+                    new_h = img_max_h
+                    new_w = img_max_h / aspect_ratio
                 else:
-                    new_w = image_area_width
-                    new_h = image_area_width * aspect_ratio
+                    new_w = img_max_w
+                    new_h = img_max_w * aspect_ratio
 
-                x_pos = 10 + (image_area_width - new_w) / 2
-                y_pos = 10 + (image_area_height - new_h) / 2
+                # Center the image inside the white frame
+                x_pos = frame_margin + padding + (img_max_w - new_w) / 2
+                y_pos = frame_y + padding + (img_max_h - new_h) / 2
                 
                 pdf.image(img_path, x=x_pos, y=y_pos, w=new_w, h=new_h)
-                
-            else:
-                # Placeholder box
-                pdf.set_fill_color(200, 200, 200) 
-                pdf.rect(x=10, y=10, w=image_area_width, h=image_area_height, style='F')
             
-            # 3. Text on bottom 1/3
-            pdf.set_font(PDF_FONT, 'B', 16) # Bold
-            pdf.set_text_color(0, 0, 0) # Black text
-            pdf.set_xy(10, PAGE_SIZE_MM - 55) # Y-position for text
+            # D. Text Placement (Below the White Frame)
+            #    Bold text directly on the colored background
+            pdf.set_font(PDF_FONT, 'B', 18) 
+            pdf.set_text_color(0, 0, 0)
+            
+            # Position text starting 15mm below the frame
+            text_y_start = frame_y + frame_height + 15
+            pdf.set_xy(15, text_y_start)
+            
             pdf.multi_cell(
-                w=PAGE_SIZE_MM - 20, # 10mm margins
-                h=8, 
+                w=PAGE_SIZE_MM - 30, 
+                h=9, 
                 text=text_page, 
                 align='C'
             )
 
-        # --- START FIX (Problem #4) ---
-        # --- End Message Page ---
+        # ==========================================
+        # 3. BACK COVER / END MESSAGE
+        # ==========================================
         if end_message:
             pdf.add_page()
+            
+            # Background
             if cover_image_path and os.path.exists(cover_image_path):
                 pdf.image(cover_image_path, x=0, y=0, w=PAGE_SIZE_MM, h=PAGE_SIZE_MM)
             else:
                 pdf.set_fill_color(*rgb_color)
                 pdf.rect(x=0, y=0, w=PAGE_SIZE_MM, h=PAGE_SIZE_MM, style='F')
 
-            # --- RE-ADDING the white "bookplate" ---
-            pdf.set_fill_color(255, 255, 255) # White
-            try:
-                pdf.rounded_rect(x=30, y=80, w=PAGE_SIZE_MM - 60, h=50, r=10, style='F')
-            except AttributeError:
-                pdf.rect(x=30, y=80, w=PAGE_SIZE_MM - 60, h=50, style='F')
+            # End Message Text: Bold, Large, Centered directly on pattern
+            # NO white box here.
+            pdf.set_font(PDF_FONT, 'B', 24)
+            pdf.set_text_color(0, 0, 0)
+            pdf.set_xy(15, 90) 
+            pdf.multi_cell(w=PAGE_SIZE_MM - 30, h=12, text=end_message, align='C')
 
-            # --- Use Bold as requested, and larger ---
-            pdf.set_font(PDF_FONT, 'B', 20) # Bold, 20pt
-            pdf.set_text_color(0, 0, 0) # Black text
-            pdf.set_xy(30, 95) 
-            pdf.multi_cell(w=PAGE_SIZE_MM - 60, h=10, text=end_message, align='C')
-        # --- END FIX ---
-        
+        # Finalize
         pdf._page_count = pdf.page_no() 
         pdf.output(output_filename)
         print(f"...PDF assembly complete. Pages created: {pdf.page_no()}")

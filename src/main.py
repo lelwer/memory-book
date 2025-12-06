@@ -1,4 +1,29 @@
 import sys
+import os
+from dotenv import load_dotenv
+
+# --- 1. PRE-FLIGHT CHECK ---
+# Force load .env from the project root directory immediately.
+# This ensures the key is available before we import other modules.
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.abspath(os.path.join(current_dir, '..'))
+env_path = os.path.join(root_dir, '.env')
+load_dotenv(env_path)
+
+# Check the key immediately. If missing, fail fast with a clear message.
+if not os.environ.get("GEMINI_API_KEY"):
+    print("\n" + "="*50)
+    print("❌ CRITICAL ERROR: API Key Missing")
+    print("="*50)
+    print(f"The program could not find 'GEMINI_API_KEY'.")
+    print(f"It looked for the .env file here: {env_path}")
+    print("\nPlease ensure you have created the .env file in the PROJECT ROOT.")
+    print("The file content should look like: GEMINI_API_KEY=AIzaSy...")
+    print("="*50 + "\n")
+    sys.exit(1) # STOP THE PROGRAM HERE
+
+# --- 2. MODULE IMPORTS ---
+# We import these AFTER checking the key, so they initialize correctly.
 from .api_clients import get_story_from_gemini, get_images_from_api, get_cover_image
 from .book_assembler import create_pdf
 
@@ -66,7 +91,6 @@ def main():
     # 2. Craft the master prompt
     print("Step 1/4: Crafting a unique story prompt...")
     
-    # --- START FIX (Problem #1) ---
     full_prompt = (
         f"Write a 5-page story about a memory. "
         f"CRITICAL: The story MUST be written from the **mom's point of view**. "
@@ -77,10 +101,9 @@ def main():
         f"The tone must be {story_inputs['tone']}. "
         f"The style must be: {story_inputs['style']}. "
         f"Each of the 5 pages MUST have a maximum of 4 rhyming lines. "
-        f"The rhymes MUST be strong and clear (e.g., 'day'/'play', not 'mom'/'jam'). " # <-- NEW
+        f"The rhymes MUST be strong and clear (e.g., 'day'/'play', not 'mom'/'jam'). "
         f"Format the output so that each page is separated by a double newline ('\n\n')."
     )
-    # --- END FIX ---
     
     try:
         print("Step 2/4: Calling Gemini for the story...")
@@ -90,7 +113,6 @@ def main():
         print(f"\n[Fatal Error] Failed to get story from API: {e}")
         sys.exit(1)
 
-    # (Rest of main function is unchanged)
     # 3a. Call the Cover Image API
     try:
         print("Step 3/5: Calling API for cover image...")

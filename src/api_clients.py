@@ -4,24 +4,34 @@ from dotenv import load_dotenv
 from PIL import Image 
 import io
 
-# (Top of file is unchanged)
 # --- Load .env file ---
+# We look for the .env file in the PROJECT ROOT (one level up from this file)
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
 load_dotenv(dotenv_path)
+
 # --- API Key Configuration ---
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 else:
+    # This print is a fallback; main.py should catch this earlier now.
     print("Warning: GEMINI_API_KEY environment variable not set.")
-# (get_story_from_gemini function is unchanged)
+
 def get_story_from_gemini(full_prompt):
+    """
+    Sends the story prompt to Gemini and returns the cleaned text.
+    Raises an error if the API key is missing or the call fails.
+    """
     if not GEMINI_API_KEY:
         print("[Error] Cannot call Gemini: API key is missing.")
-        return "This is placeholder story text. The GEMINI_API_KEY is not set."
+        # Raise an error so main.py stops, rather than returning fake text.
+        raise ValueError("GEMINI_API_KEY is missing. Cannot generate story.")
+
     try:
         model = genai.GenerativeModel('models/gemini-2.5-flash')
         response = model.generate_content(full_prompt)
+        
+        # Clean up the text response
         clean_text = response.text
         clean_text = clean_text.replace("…", "...")
         clean_text = clean_text.replace("’", "'")
@@ -30,12 +40,13 @@ def get_story_from_gemini(full_prompt):
         clean_text = clean_text.replace("”", '"')
         clean_text = clean_text.replace("—", "--")
         return clean_text
+        
     except Exception as e:
         print(f"[Error] Failed to generate story: {e}")
-        return "Placeholder story text. An API error occurred."
+        # Re-raise the exception so the program knows it failed.
+        raise e 
 
 
-# --- START FIX (Problem #2) ---
 def get_cover_image(theme):
     """
     Generates a single, beautiful pattern for the cover.
@@ -50,7 +61,7 @@ def get_cover_image(theme):
             f"storybook cover. The theme should be '{theme}'. "
             f"Style: playful, colorful, simple cartoon."
             f"CRITICAL: DO NOT include any text or words. "
-            f"DO NOT draw malformed animals, extra limbs, or distorted features." # <-- NEW
+            f"DO NOT draw malformed animals, extra limbs, or distorted features."
         )
         
         image_model = genai.GenerativeModel('models/gemini-2.5-flash-image')
@@ -71,11 +82,13 @@ def get_cover_image(theme):
         print(f"[Error] Failed to generate cover image: {e}")
         return None
     return None
-# --- END FIX ---
 
 
-# (get_images_from_api function is unchanged, it's working well)
 def get_images_from_api(story_text, character_description, other_characters, details):
+    """
+    Generates illustrations for every page of the story using a chat session
+    to maintain consistency.
+    """
     if not GEMINI_API_KEY:
         print("[Error] Cannot get images: API key is missing.")
         return []
@@ -107,6 +120,7 @@ def get_images_from_api(story_text, character_description, other_characters, det
             f"correctly, with happy, natural expressions."
         )
         
+        # Start a chat session to keep style consistent across pages
         image_model = genai.GenerativeModel('models/gemini-2.5-flash-image')
         chat = image_model.start_chat(
             history=[

@@ -2,36 +2,35 @@ import sys
 import os
 from dotenv import load_dotenv
 
-# --- 1. PRE-FLIGHT CHECK ---
-# Force load .env from the project root directory immediately.
-# This ensures the key is available before we import other modules.
+# --- 1. SETUP ---
+# We still load the .env here so variables are available,
+# but we DO NOT exit if it fails yet.
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(current_dir, '..'))
 env_path = os.path.join(root_dir, '.env')
 load_dotenv(env_path)
 
-# Check the key immediately. If missing, fail fast with a clear message.
-if not os.environ.get("GEMINI_API_KEY"):
-    print("\n" + "="*50)
-    print("❌ CRITICAL ERROR: API Key Missing")
-    print("="*50)
-    print(f"The program could not find 'GEMINI_API_KEY'.")
-    print(f"It looked for the .env file here: {env_path}")
-    print("\nPlease ensure you have created the .env file in the PROJECT ROOT.")
-    print("The file content should look like: GEMINI_API_KEY=AIzaSy...")
-    print("="*50 + "\n")
-    sys.exit(1) # STOP THE PROGRAM HERE
-
-# --- 2. MODULE IMPORTS ---
-# We import these AFTER checking the key, so they initialize correctly.
 from .api_clients import get_story_from_gemini, get_images_from_api, get_cover_image
 from .book_assembler import create_pdf
 
-def get_user_input():
-    """Prompt the user for story inputs instead of returning hard-coded test data.
-
-    Press Enter to accept the suggested default for any prompt.
+def validate_environment():
     """
+    Checks for the API key and exits if missing.
+    We call this ONLY when the script runs directly, not during tests.
+    """
+    if not os.environ.get("GEMINI_API_KEY"):
+        print("\n" + "="*50)
+        print("❌ CRITICAL ERROR: API Key Missing")
+        print("="*50)
+        print(f"The program could not find 'GEMINI_API_KEY'.")
+        print(f"It looked for the .env file here: {env_path}")
+        print("\nPlease ensure you have created the .env file in the PROJECT ROOT.")
+        print("The file content should look like: GEMINI_API_KEY=AIzaSy...")
+        print("="*50 + "\n")
+        sys.exit(1)
+
+def get_user_input():
+    """Prompt the user for story inputs."""
     print("--- 📚 Memory-to-Storybook Generator ---")
     print("Please provide the following details. Press Enter to accept the default shown in brackets.")
 
@@ -76,19 +75,20 @@ def get_user_input():
         "theme_color": theme_color
     }
 
-
 def main():
     """
     Main function to run the storybook generation pipeline.
     """
-    
-    # 1. Get user input
+    # 1. Validate Env (Runs only when main is called)
+    validate_environment()
+
+    # 2. Get user input
     story_inputs = get_user_input()
     protagonist = story_inputs['protagonist']
     
     print(f"\nThanks! Generating a '{story_inputs['tone']}' story for {protagonist}...")
 
-    # 2. Craft the master prompt
+    # 3. Craft the master prompt
     print("Step 1/4: Crafting a unique story prompt...")
     
     full_prompt = (
@@ -113,7 +113,7 @@ def main():
         print(f"\n[Fatal Error] Failed to get story from API: {e}")
         sys.exit(1)
 
-    # 3a. Call the Cover Image API
+    # 4a. Call the Cover Image API
     try:
         print("Step 3/5: Calling API for cover image...")
         cover_image_path = get_cover_image(story_inputs['cover_theme'])
@@ -125,7 +125,7 @@ def main():
         print(f"\n[Fatal Error] Failed to get cover image from API: {e}")
         sys.exit(1)
         
-    # 3b. Call the Story Image API
+    # 4b. Call the Story Image API
     try:
         print(f"Step 4/5: Calling API for {story_inputs['protagonist']}'s story images...")
         image_list = get_images_from_api(
@@ -139,7 +139,7 @@ def main():
         print(f"\n[Fatal Error] Failed to get story images from API: {e}")
         sys.exit(1)
             
-    # 4. Assemble the final PDF
+    # 5. Assemble the final PDF
     print("Step 5/5: Assembling the final PDF...")
     output_filename = f"{protagonist.lower().replace(' ', '_')}_storybook.pdf"
     
@@ -157,7 +157,6 @@ def main():
         print(f"\n✅ Success! Your storybook has been saved as {output_filename}")
     else:
         print("\n[Error] Failed to create the final PDF.")
-
 
 if __name__ == "__main__":
     main()

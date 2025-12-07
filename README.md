@@ -8,6 +8,7 @@
 
 This project takes a simple, real-life moment—like a child's funny question—and uses AI to write a unique rhyming story, generate consistent illustrations for each page, and assemble it all into a single, print-ready PDF file.
 
+> **Note:** This program generates AI-produced content, which may occasionally include visuals that are unrealistic or appear distorted. Please keep this in mind when running the program.
 ---
 
 ## 🎯 Project Vision: From CLI to Keepsake
@@ -84,26 +85,66 @@ pip install -r requirements.txt
 
 This tool requires a Google Gemini API key to function.
 
-### 1. Get your Key
+### ⭐ Step 1: Create a New Google Cloud Project
+1. Go to [https://console.cloud.google.com/](https://console.cloud.google.com/)
+2. In the top navigation bar, click the **project selector** (the dropdown showing your current project).
+3. Click **“New Project”** in the top-right corner.
+4. Enter:
+    * **Project Name** (anything you want)
+    * **Organization** (if applicable)
+    * **Location** (optional)
+5. Click **Create**.
+6. Wait a few seconds — Google will set it up.
 
-Go to [Google AI Studio](https://aistudio.google.com/) and click **"Create API Key"**.
+You’ll see a notification once the project is ready.
 
-### 2. Create the `.env` file
+### ⭐ Step 2: Switch Into That Project
+1. Click the **project selector** again.
+2. Choose the new project you just created.
 
-In the **ROOT folder** of this project (the same folder containing `requirements.txt` and this `README.md`), create a new file named exactly: `.env`
+*This is important — APIs and keys are always tied to whichever project is currently active.*
 
-> ⚠️ **IMPORTANT**: The file must have NO name before the dot. It is just `.env`
+### ⭐ Step 3: Enable the Gemini API (a.k.a. "Vertex AI API")
+Google lists Gemini models under Vertex AI → Generative AI APIs.
 
-**Windows Users**: If you cannot create a file starting with a dot, name it `.env.` (with a trailing dot) and Windows will rename it correctly to `.env`.
+1. In the left sidebar, click **APIs & Services** → **Library**.
+2. In the search bar, type: “Gemini”.
+3. Click **Generative Language API** (this includes all Gemini model endpoints).
+4. Click the **Enable** button.
 
-### 3. Paste your Key
+If you see “Enabled,” you’re all set.
 
-Open the `.env` file in Notepad or VS Code and paste your key like this:
+### ⭐ Step 4: Create an API Key
+1. In the left sidebar, go to **APIs & Services** → **Credentials**.
+2. Click **“+ CREATE CREDENTIALS”** at the top.
+3. Select **API key**.
+4. Google will instantly generate an API key for you and show it in a popup.
+
+### ⭐ Step 5: (Important) Restrict the API Key
+For security, you should restrict the key so only certain APIs or domains can use it.
+
+1. In the popup, click **Restrict Key** (or go to **Credentials** → Click your new API key).
+2. Under **API restrictions**, select:
+    * **Restrict key**
+    * Choose **Generative Language API** (this protects you from other services being used).
+3. You may also add:
+    * HTTP referrer restrictions (for websites)
+    * IP address restrictions (for servers)
+    * Android/iOS app restrictions
+
+Click **Save**.
+
+---
+> **Note:** A Gemini Pro account is likely required to access these models. This may involve associated costs if your free trial has already been utilized.
+
+### ⭐ Step 6: Paste Your Key
+
+1. Create a `.env` file in the main /memory-book folder and paste your API key like the following:
 ```
-GEMINI_API_KEY=AIzaSyYourActualKeyHere...
+GEMINI_API_KEY=YourActualKeyHere...
 ```
 
-> 💡 **Note**: This file is ignored by Git to keep your key secure. Never share your `.env` file.
+> **Note**: This file is ignored by Git to keep your key secure. Never share your `.env` file.
 
 ---
 
@@ -145,7 +186,7 @@ The quality of your book depends on your inputs. Here is how each prompt maps to
 
 ## 📖 Example Output
 
-After the program finishes, you will find a file like `maya_storybook.pdf` in your folder.
+After the program finishes, you will find a file like `[protagonist_name]_storybook.pdf` in your folder.
 
 ### The PDF structure:
 
@@ -155,6 +196,11 @@ After the program finishes, you will find a file like `maya_storybook.pdf` in yo
   - Top: A white "Polaroid" frame containing an AI Illustration of that page's scene
   - Bottom: 4 lines of Rhyming Text generated from your memory
 - **Page 7 (Back)**: The Pattern background again + Your End Message
+
+### Preview
+Click the image below to view the full sample PDF:
+
+[![Click to view sample PDF](assets/example_book_preview.png)](assets/maya_storybook.pdf)
 
 ---
 

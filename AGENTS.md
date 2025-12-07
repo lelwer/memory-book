@@ -4,7 +4,7 @@
 
 This repository uses AI tools as development partners. This document explains which agents were used, how they were used, the policies contributors must follow when using AI, and example prompts that conform to our standards.
 
-This project was developed using a "pair programmer" methodology with AI to satisfy the IS4010 final project requirements (see `README Final Project Instructions.md`).
+This project was developed using a "pair programmer" methodology.
 
 
 ## 1 — AI Tools Used
@@ -107,6 +107,4 @@ My fpdf2 code is crashing with the error "'PDF' object has no attribute 'set_alp
 
 ---
 
-If you use AI tools while contributing to this repository, follow the rules above and add a short note to your commit message indicating what AI tool(s) and prompts you used (this helps with transparency and grading).
-
-For more details about how AI was used during development, see `README Final Project Instructions.md` and `AGENTS.md` history in the repository.
+If you use AI tools while contributing to this repository, follow the rules above and add a short note to your commit message indicating what AI tool(s) and prompts you used (this helps with transparency).

@@ -3,8 +3,7 @@ import os
 from dotenv import load_dotenv
 
 # --- 1. SETUP ---
-# We still load the .env here so variables are available,
-# but we DO NOT exit if it fails yet.
+# Force load .env from the project root directory immediately.
 current_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(current_dir, '..'))
 env_path = os.path.join(root_dir, '.env')
@@ -30,7 +29,7 @@ def validate_environment():
         sys.exit(1)
 
 def get_user_input():
-    """Prompt the user for story inputs."""
+    """Prompt the user for story inputs with validation."""
     print("--- 📚 Memory-to-Storybook Generator ---")
     print("Please provide the following details. Press Enter to accept the default shown in brackets.")
 
@@ -58,7 +57,20 @@ def get_user_input():
     end_message = ask("End message to include", "Merry Christmas! Love, Mom!")
     other_characters = ask("Other characters (brief)", "The narrator, 'mom', is a woman with blonde hair.")
     cover_theme = ask("Cover theme", "armadillos and flowers")
-    theme_color = ask("Theme color", "light blue")
+    
+    # --- FIXED: Validated Color Selection ---
+    valid_colors = ["light blue", "light pink", "light green", "light yellow", "light gray", "white"]
+    print(f"\nAvailable Colors: {', '.join(valid_colors)}")
+    
+    while True:
+        color_input = input(f"Theme color [{valid_colors[0]}]: ").strip().lower()
+        if not color_input:
+            theme_color = valid_colors[0] # Default
+            break
+        if color_input in valid_colors:
+            theme_color = color_input
+            break
+        print(f"❌ Invalid color. Please choose one of: {', '.join(valid_colors)}")
 
     return {
         "memory": memory,

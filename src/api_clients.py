@@ -112,8 +112,13 @@ def get_images_from_api(story_text, character_description, other_characters, det
             f"room. The setting MUST match the prompt. Do NOT merge "
             f"scenes (e.g., no bathtubs in kitchens)."
         )
+        # ------------------------------------------------------------------
+        # FIX: Added strict negative prompts for speech bubbles and text
+        # ------------------------------------------------------------------
         negative_prompt = (
-            f"CRITICAL: DO NOT include any text, words, or letters. "
+            f"CRITICAL: DO NOT include any text, words, letters, speech bubbles, "
+            f"thought bubbles, labels, or captions. "
+            f"The image must be purely illustrative. "
             f"DO NOT draw malformed bodies, distorted faces, dead eyes, "
             f"zombie-like or uncanny valley expressions, disfigured features, "
             f"or missing limbs. All characters must be drawn "

@@ -1,75 +1,65 @@
 # 📚 Memory-to-Storybook Generator
 
-[![CI](https://github.com/lelwer/memory-book/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
+[![Tests](https://github.com/lelwer/memory-book/actions/workflows/tests.yml/badge.svg)](https://github.com/lelwer/memory-book/actions)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-A command-line tool that transforms a cherished personal memory into a custom, beautifully illustrated storybook PDF using Google's Gemini AI.
+> A command-line tool that transforms a cherished personal memory into a custom, beautifully illustrated storybook PDF using Google's Gemini AI.
 
-This project takes a simple, real-life moment—like a child's funny question—and uses AI to write a unique story, generate consistent illustrations for each page, and assemble it all into a single, print-ready PDF file.
+This project takes a simple, real-life moment—like a child's funny question—and uses AI to write a unique rhyming story, generate consistent illustrations for each page, and assemble it all into a single, print-ready PDF file.
 
-## Project Vision: From CLI to Keepsake
+---
 
-This command-line application serves as the powerful backbone and proof-of-concept for a much larger vision: a full web platform where any user can create and order a physical storybook.
+## 🎯 Project Vision: From CLI to Keepsake
 
-The ultimate goal is to build a user-friendly website where a person can:
+This command-line application serves as the proof-of-concept for a larger vision: **a platform where parents can turn fleeting family moments into physical books**.
 
-- Enter their memory and story details into a simple, beautiful interface
-- Get an instant preview of their unique, AI-generated storybook right in the browser
-- Order a physical copy to be professionally printed, bound, and shipped to their doorstep, creating a timeless family keepsake
+### The ultimate goal is to build a web interface where a user can:
 
-This CLI tool is the foundational "engine" that proves the core logic—turning a prompt into a complete, illustrated book—is possible.
+1. **Enter** a memory and story details
+2. **Get** an instant preview of a unique, AI-generated storybook
+3. **Order** a physical, hardbound copy as a timeless family keepsake
 
-## Table of Contents
+This CLI tool is the "engine" that proves the core logic—turning a text prompt into a complete, illustrated book—is possible.
 
-- [Features](#features)
-- [How It Works](#how-it-works)
-- [Installation](#installation)
-- [Setting Up Your Gemini API Key](#setting-up-your-gemini-api-key)
-- [Usage](#usage)
-- [Understanding the Inputs](#understanding-the-inputs)
-- [Tips for Best Results](#tips-for-best-results)
-- [Example Output](#example-output)
-- [Testing](#testing)
-- [AI-Assisted Development](#ai-assisted-development)
-- [License](#license)
+---
 
-## Features
+## 📑 Table of Contents
 
-- **AI-Powered Storytelling**: Uses `gemini-2.5-flash` to generate a unique, multi-page story based on your personal memory.
-- **Consistent AI Illustrations**: Leverages `gemini-2.5-flash-image` to generate a custom cover pattern and a unique, stylistically consistent illustration for every page of the story.
-- **PDF Assembly**: Automatically assembles the generated text and images into a print-ready, square-format PDF using `fpdf2`.
-- **Fully Customizable**: Control the story's protagonist, tone, style, setting, and even add a personal dedication.
-- **Interactive CLI**: A simple and friendly command-line interface that guides you through every necessary input.
+- [Features](#-features)
+- [Installation](#-installation)
+- [API Configuration](#-api-configuration-crucial-step)
+- [Usage](#-usage)
+- [Input Guide](#-input-guide-what-do-the-prompts-do)
+- [Example Output](#-example-output)
+- [Tips for Best Results](#-tips-for-best-results)
+- [Testing](#-testing)
+- [AI-Assisted Development](#-ai-assisted-development)
+- [License](#-license)
 
-## How It Works
+---
 
-The application runs in a simple, five-step process:
+## ✨ Features
 
-1. **Collect Inputs**: The `main.py` script asks you for 11 key details (the memory, protagonist, theme, etc.).
-2. **Generate Story**: These inputs are compiled into a detailed "master prompt." This prompt is sent to the Gemini API, which returns a complete, 5-page story separated by newlines.
-3. **Generate Cover**: The `cover_theme` input is used to generate a single, seamless background pattern for the front and back cover.
-4. **Generate Images**: The script starts a "chat" with the image AI. It first provides a "style guide" (based on your `protagonist_description`, `other_characters`, and `details`) to ensure all images are consistent. It then loops through each page of the story, sending the text as a prompt to get a matching illustration.
-5. **Assemble PDF**: The `book_assembler.py` script takes the story text, all the generated images, the title, and the theme color. It then carefully places each element onto the pages of a square PDF, creating the final storybook.
+- **AI-Powered Storytelling**: Uses `gemini-2.5-flash` to generate a unique, 5-page rhyming story based on your memory
+- **Consistent Illustrations**: Uses `gemini-2.5-flash-image` with a specialized "Style Guide" prompt to ensure characters look consistent across every page
+- **Polaroid-Style Layout**: Automatically formats the PDF with solid theme colors, white "Polaroid" frames for images, and bold, readable text
+- **Custom Cover Art**: Generates a seamless background pattern based on your chosen theme
+- **Interactive CLI**: A friendly command-line interface with smart defaults for quick testing
 
-## Installation
+---
 
-To run this project, you'll need Python 3.10+ and the required libraries.
+## 🚀 Installation
 
-### 1. Clone this repository
-
+### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/lelwer/memory-book.git
+cd memory-book
 ```
 
-### 2. Create a virtual environment (recommended)
+### 2. Create a virtual environment
 
-**On macOS/Linux:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+Using a virtual environment prevents conflicts with other Python projects on your computer.
 
 **On Windows:**
 ```bash
@@ -77,164 +67,139 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
-### 3. Install dependencies
+**On macOS/Linux:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Set up your API Key
+---
 
-See the [Setting Up Your Gemini API Key](#setting-up-your-gemini-api-key) section below.
-
-## Setting Up Your Gemini API Key
+## 🔑 API Configuration (Crucial Step)
 
 This tool requires a Google Gemini API key to function.
 
-### Get your key
+### 1. Get your Key
 
-1. Go to the [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Sign in with your Google account
-3. Click on **"Get API key"** and then **"Create API key in new project"**
-4. Copy the generated key
+Go to [Google AI Studio](https://aistudio.google.com/) and click **"Create API Key"**.
 
-### Create a `.env` file
+### 2. Create the `.env` file
 
-1. In the root directory of this project (the same folder as `requirements.txt`), create a new file named `.env`
-2. Open the `.env` file and add the following line, pasting your key after the equals sign:
+In the **ROOT folder** of this project (the same folder containing `requirements.txt` and this `README.md`), create a new file named exactly: `.env`
 
+> ⚠️ **IMPORTANT**: The file must have NO name before the dot. It is just `.env`
+
+**Windows Users**: If you cannot create a file starting with a dot, name it `.env.` (with a trailing dot) and Windows will rename it correctly to `.env`.
+
+### 3. Paste your Key
+
+Open the `.env` file in Notepad or VS Code and paste your key like this:
 ```
-GEMINI_API_KEY="YOUR_API_KEY_HERE"
+GEMINI_API_KEY=AIzaSyYourActualKeyHere...
 ```
 
-3. Save the file
+> 💡 **Note**: This file is ignored by Git to keep your key secure. Never share your `.env` file.
 
-The `api_clients.py` script is already configured to read this file automatically, so you're all set. Your API key is kept private and will not be uploaded to GitHub (as `.env` is included in the `.gitignore` file).
+---
 
-## Usage
+## 💻 Usage
 
-Once installed, you can run the application from the root directory of the project:
-
+Run the application from the root directory:
 ```bash
 python -m src.main
 ```
 
-The script will launch an interactive session. Pressing Enter without typing will accept the default value shown in brackets `[default]`. Here is an example of what the session will look like:
-
+The script will launch an interactive session. You can type your answers or press **Enter** to use the default values shown in brackets `[]`.
 ```
 --- 📚 Memory-to-Storybook Generator ---
-Please provide the following details. Press Enter to accept the default shown in brackets.
+Please provide the following details...
 
-Enter the memory (briefly describe the event) [press Enter for default]: I had my daughter ask as I was going to the bathroom when she was three: what do you know about armadillos?
-Protagonist name [Maya]:
-Protagonist description [a 3-year-old girl with brown curly hair and big brown eyes]:
-Tone (e.g., Funny, Serious, Tender) [Funny]:
-Additional details / setting [The setting is our family home. The story scenes take place in a hallway and a bathroom.]:
-Style (e.g., Rhyming, Narrative) [Rhyming]:
-Complexity (Short/Standard/Advanced) [Standard]:
-Story title [Silly Maya "Muffin" Elwer]:
-End message to include [Merry Christmas! Love, Mom!]:
-Other characters (brief) [The narrator, 'mom', is a woman with blonde hair.]:
-Cover theme [armadillos and flowers]:
-Theme color [light blue]:
-
-Thanks! Generating a 'Funny' story for Maya...
-Step 1/4: Crafting a unique story prompt...
-Step 2/4: Calling Gemini for the story...
-... Story text received!
-Step 3/5: Calling API for cover image...
-... Cover image received!
-Step 4/5: Calling API for Maya's story images...
-... 5 images received!
-Step 5/5: Assembling the final PDF...
-...PDF assembly complete. Pages created: 7
-
-✅ Success! Your storybook has been saved as maya_storybook.pdf
+Enter the memory [press Enter for default]: 
+Protagonist name [Maya]: 
+...
 ```
 
+---
 
-## Understanding the Inputs
+## 📝 Input Guide: What do the prompts do?
 
-The quality of your storybook depends entirely on the quality of your inputs. Here is what each prompt does and why it's important.
+The quality of your book depends on your inputs. Here is how each prompt maps to the final PDF:
 
-| Input | Purpose |
-|-------|---------|
-| **Enter the memory** | This is the most important input. It's the "seed" for the entire story. A short, specific event (like the "armadillos" question) works best. The AI will build a 5-page plot around this single moment. |
-| **Protagonist name** | The name of the main character (e.g., "Maya"). This will be used directly in the story text. |
-| **Protagonist description** | Crucial for the image AI. This is your primary instruction for what the main character looks like. A good description like "a 3-year-old girl with brown curly hair and big brown eyes" is essential for generating consistent illustrations. |
-| **Tone** | Sets the emotional feel of the story (e.g., "Funny", "Tender", "Adventurous"). The AI will adjust its writing style to match. |
-| **Additional details / setting** | Crucial for the image AI. This tells the AI where the story is happening. "Our family home" and "scenes take place in a hallway and a bathroom" are vital clues for the illustrator. |
-| **Style** | Controls the text generation. "Rhyming" instructs the AI to write a poem, while "Narrative" would produce standard prose. |
-| **Story title** | This is the exact text that will be printed on the cover of your PDF. |
-| **End message to include** | A personal dedication (e.g., "Merry Christmas! Love, Mom!") that will be printed on the final page of the book. |
-| **Other characters** | Crucial for the image AI. Just like the protagonist description, this tells the image AI what other characters look like (e.g., "The narrator, 'mom', is a woman with blonde hair"). |
-| **Cover theme** | This prompt is used to generate the single repeating background pattern for the front and back covers (e.g., "armadillos and flowers"). |
-| **Theme color** | This sets the background color for all the internal story pages (the ones with illustrations). It must be one of: `light blue`, `light pink`, `light green`, `light yellow`, `light gray`, or `white`. |
+| Input | Where it goes in the PDF | Why it matters |
+|-------|-------------------------|----------------|
+| **Memory** | The Plot | This is the seed. "A trip to the zoo" becomes the story arc. Be specific! |
+| **Protagonist Name** | Story Text | Used in the rhymes (e.g., "Little Maya ran so fast"). |
+| **Protagonist Description** | The Images | Crucial. Defines the character for the AI illustrator. e.g., "A 3-year-old girl with curly brown hair." |
+| **Tone** | Writing Style | "Funny" makes silly rhymes; "Tender" makes sweet, soft rhymes. |
+| **Story Title** | Front Cover | Printed in Large Bold Text on the front cover. |
+| **Cover Theme** | Cover Pattern | Generates the background pattern for the front and back covers (e.g., "Dinosaurs and stars"). |
+| **End Message** | Back Cover | A dedication printed on the back. "Love, Mom & Dad, 2025". |
+| **Theme Color** | Page Background | The background color behind the story text and image frames (e.g., "Light Blue"). |
 
-## Tips for Best Results
+---
 
-Garbage in, garbage out. Follow these tips to get a high-quality storybook.
+## 📖 Example Output
+
+After the program finishes, you will find a file like `maya_storybook.pdf` in your folder.
+
+### The PDF structure:
+
+- **Page 1 (Cover)**: Your selected Pattern background + Your Title in large text
+- **Pages 2–6 (Story)**:
+  - Background: Theme Color (e.g., Blue)
+  - Top: A white "Polaroid" frame containing an AI Illustration of that page's scene
+  - Bottom: 4 lines of Rhyming Text generated from your memory
+- **Page 7 (Back)**: The Pattern background again + Your End Message
+
+---
+
+## 💡 Tips for Best Results
 
 ### ✅ DO...
 
-**Be Specific (Especially for Images)**  
-The AI can't read your mind. More detail produces better results.
-- ❌ Bad: "a girl"
-- ✅ Good: "a 4-year-old girl with bright red pigtails, freckles, and glasses"
-
-**Be Detailed About Settings**
-- ❌ Bad: "in the house"
-- ✅ Good: "in a messy living room with a blue sofa and a big window"
-
-**Check Your Spelling**  
-The AI is literal. It will be confused by typos or if you spell a character's name two different ways.
-
-**Keep the Memory Simple**  
-The AI has to stretch your memory into a 5-page story. A simple, single event (like one funny question, one silly misunderstanding) works much better than a complex event (like "our entire 3-week vacation").
+- **Be Descriptive with Looks**: Instead of "a boy", try "a 5-year-old boy with glasses, a red cap, and a blue shirt." This keeps the character looking the same on every page.
+- **Keep the Memory Simple**: The AI writes a 5-page story. Simple memories (e.g., "Baking cookies with grandma") work better than complex ones (e.g., "Our 2-week vacation to Europe").
+- **Check Spelling**: The AI reads literally. If you misspell a name, it will appear misspelled in the story.
 
 ### 🚫 DON'T...
 
-**Don't Use Vague Descriptions**  
-Using generic terms for the protagonist will result in inconsistent images (different hair, gender, etc.) on every page.
+- **Don't describe complex actions**: "He jumped while eating a sandwich and flying a kite" might confuse the image generator.
+- **Don't worry about perfection**: AI art can sometimes be quirky (e.g., a hand with 6 fingers). It's part of the charm!
 
-**Don't Overcomplicate the Plot**  
-The AI is writing a 5-page (20-line) rhyming story. It can't handle complex plots with multiple twists.
+---
 
-**Don't Expect Perfection**  
-AI is an amazing creative partner, but it's not perfect. You might occasionally get a weird rhyme, a slightly strange-looking hand in an image, or a character that doesn't look exactly right. If you don't like the result, just run the script again!
+## 🧪 Testing
 
-## Example Output
+This project includes a full test suite using `pytest` and `pytest-mock`. We mock all API calls, so running tests does not cost you money or API credits.
 
-Running the script with the default values (the "armadillos" memory) will produce a new file in your directory named: `maya_storybook.pdf`.
-
-This file will be a **7-page, 210mm × 210mm square storybook**:
-
-- **Page 1 (Cover)**: The title "Silly Maya 'Muffin' Elwer" centered on a white "bookplate" over a background pattern of "armadillos and flowers"
-- **Pages 2–6 (Story)**: The 5-page rhyming story. Each page has a custom illustration at the top and the corresponding 4 lines of text at the bottom. The page background is light blue
-- **Page 7 (Back Cover)**: The end message "Merry Christmas! Love, Mom!" on the same "armadillos and flowers" pattern
-
-## Testing
-
-This project uses `pytest` and `pytest-mock` to run unit tests. The tests are designed to check the logic of the `book_assembler.py` script without making live (and costly) calls to the Gemini API.
-
-### Run all tests
-
+**Run all tests:**
 ```bash
 pytest
 ```
 
-### Run with detailed output
-
+**Run with detailed output:**
 ```bash
 pytest -v
 ```
 
-All tests should pass in the GitHub Actions CI/CD pipeline.
+---
 
-## AI-Assisted Development
+## 🤖 AI-Assisted Development
 
-This project was developed with assistance from AI tools, including Google's Gemini and GitHub Copilot. For a detailed breakdown of how these tools were used for planning, code generation, debugging, and documentation, see [AGENTS.md](./AGENTS.md).
+This project was built using a "Pair Programmer" methodology with AI.
 
-## License
+- **Gemini**: Served as the Lead Architect, planning the file structure, debugging API errors, and designing the PDF layout logic.
+- **GitHub Copilot**: Assisted with writing boilerplate code, docstrings, and unit tests.
+
+See `AGENTS.md` for a detailed log of the prompts and strategy used.
+
+---
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
